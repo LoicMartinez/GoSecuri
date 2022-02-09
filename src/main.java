@@ -6,7 +6,7 @@ import java.io.IOException;  // Import the IOException class to handle errors
 
 public class main {
     public static void main(String[] args) throws FileNotFoundException {
-        File index = new File("index.html");
+        File index = new File("src/site/index.html");
         try {
             if (index.createNewFile()) {
                 System.out.println("File created: " + index.getName());
