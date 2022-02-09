@@ -16,7 +16,7 @@ public class main {
             while (obj.hasNextLine()) {
                 System.out.println(obj.nextLine());
             }
-            PrintWriter writer = new PrintWriter("index.html");
+            PrintWriter writer = new PrintWriter("src/site/index.html");
             writer.println("""
                     <html>
                         <head>
@@ -30,8 +30,7 @@ public class main {
             writer.close();
 
             System.out.println("Fini");
-        }
-        catch(IOException e) {
+        } catch(IOException e) {
             System.out.println("An error occurred.");
             e.printStackTrace();
         }
