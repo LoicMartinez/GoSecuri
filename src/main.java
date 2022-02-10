@@ -32,9 +32,11 @@ public class main {
             //Création du fichier index.html
             createIndex(indexPath, agents);
 
+            //Création de la page agent pour chacun des agents
             for (String agent : agents) {
                 createAgentPage(agent, equipmentList);
 
+            //Création du fichier css
             createCSS();
             }
         } catch(IOException e) {
@@ -88,6 +90,8 @@ public class main {
                 </body>
                 </html>
                 """;
+
+        //On crée le fichier avec les String précédement créé
         writer.println(headerHTML + identityHTML + agentList + endHTML);
         writer.close();
 
@@ -153,6 +157,7 @@ public class main {
                 </html>
                 """;
 
+        //On crée le fichier avec les String précédement créé
         PrintWriter writer = new PrintWriter("src/site/" + agent + ".html");
         writer.println(headerHTML + identityHTML + equipmentHTML + endHTML);
 
@@ -166,6 +171,7 @@ public class main {
         //Permet de savoir si le fichier index.html existe
         //Si il n'existe pas, on le crée
         if (!file.exists()) {
+            //Si create est à false, on ne crée pas le fichier et on retourne false
             if (!create) {
                 return false;
             }
@@ -187,21 +193,20 @@ public class main {
         String txtPath = null;
         String IdentityCard = null;
 
+        //Si le dossier contient des fichiers, on continue
         if (children != null) {
+            //Pour chaque fichier dans le dossier
             for (File child : children) {
+                //Si le fichier se termine par txt, on récupère le chemin
                 if (child.getAbsolutePath().substring(child.getAbsolutePath().length() - 3).equals("txt")) {
                     txtPath = child.getAbsolutePath();
-                } else {
+                } else { //Sinon on prend le chemin du fichier image
                     IdentityCard =child.getAbsolutePath();
                 }
             }
         }
 
-        String[] agentsInfo = new String[2];
-        agentsInfo[0] = txtPath;
-        agentsInfo[1] = IdentityCard;
-
-        return agentsInfo;
+        return new String[]{txtPath, IdentityCard};
     }
 
     //Valeur d'entrée : Le chemin vers le fichier staff.txt
@@ -238,6 +243,7 @@ public class main {
     }
 
     public static void createCSS() throws FileNotFoundException {
+        //Création du fichier CSS
         PrintWriter writer = new PrintWriter("src/site/Style.css");
         writer.println("""
                 body{
@@ -320,6 +326,5 @@ public class main {
                 }
                 """);
         writer.close();
-
     }
 }
