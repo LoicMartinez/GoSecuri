@@ -1,0 +1,79 @@
+body{
+    margin: unset;
+    background-color: #379fc133;
+}
+
+#header{
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    
+    background-color: #379EC1;
+}
+
+#header a{
+    background-color: #659224;
+    text-decoration: none;
+    outline: none;
+    color: black;
+    font-size: 2vw;
+
+    padding: 5px;
+}
+#header a:hover{
+    background-color: #53791e;
+    text-decoration: none;
+    outline: none;
+    color: black;
+    font-size: 2vw;
+
+    padding: 5px;
+}
+
+#logo{
+    height: 4vw;
+    width: auto;
+}
+
+.menuItem{
+    margin-left: 3vw;
+
+    background-color: #659224;
+}
+
+#infoAgent{
+    display: flex;
+    flex-direction: column;
+
+}
+
+#infoAgent{
+    display: grid;
+    grid-template: "nom carte"
+    "ItemList .";
+
+    grid-template-columns: ;
+
+    align-items: center;
+    justify-content: space-around;
+}
+
+.agentList{
+    display: flex;
+    flex-direction: column;
+}
+
+#nom{
+    grid-area: "nom";
+}
+
+#carte{
+    grid-area: "carte";
+    width: 300px;
+    height: auto;
+}
+
+#ItemList{
+    grid-area: "ItemList";
+}
+

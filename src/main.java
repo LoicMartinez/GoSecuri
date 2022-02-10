@@ -2,7 +2,6 @@ import java.util.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.util.Collection;
 import java.util.Scanner;
 import java.io.IOException;  // Import the IOException class to handle errors
 
@@ -24,17 +23,19 @@ public class main {
 
         //On défini le chemin des fichiers
         String indexPath = "src/site/index.html";
-        String staffPath = "src/clients/staff.txt";
+        String staffPath = "src/agents/staff.txt";
 
         try {
             isFile(indexPath, true);
-            List<String> clients = getClients(staffPath);
+            List<String> agents = getAgents(staffPath);
 
             //Création du fichier index.html
-            createIndex(indexPath, clients);
+            createIndex(indexPath, agents);
 
-            for (String client : clients) {
-                createClientPage(client, equipmentList);
+            for (String agent : agents) {
+                createAgentPage(agent, equipmentList);
+
+            createCSS();
             }
         } catch(IOException e) {
             System.out.println("An error occurred.");
@@ -42,35 +43,120 @@ public class main {
         }
     }
 
-    public static void createIndex(String indexPath, List<String> clients) throws FileNotFoundException {
+    public static void createIndex(String indexPath, List<String> agents) throws FileNotFoundException {
         PrintWriter writer = new PrintWriter(indexPath);
-        writer.println("""
-                    <html>
-                        <head>
-                            <title>Welcome to Portail Agents!</title>
-                        </head>
-                        <body>
-                            <h1>Portail des agents </h1>
-                        </body>
-                    </html>
-                    """);
+
+        String headerHTML = """
+                <head>
+                    <meta charset="UTF-8">
+                    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <link rel="stylesheet" href="Style.css">
+                    <title></title>
+                </head>
+                """;
+
+        String identityHTML = """
+                <body>
+                    <div>
+                        <div id="header">
+                            <img src="Assets/Images/GoSecuri.png" alt="GO Securi" id="logo">
+                            <a href="">nav item 1</a>
+                            <a href="">nav item 2</a>
+                        </div>
+                        <div id="infoAgent">
+                            <div id="itemList">
+                               <p>Liste des utilisateurs :</p>
+                               <ul>
+                """;
+
+        String agentList = "";
+
+        for (String agent: agents) {
+            agentList += String.format("""
+                    <li>
+                    <a href="%s.html"> %s </a>
+                    </li>
+                    """, agent, agent);
+        }
+
+        String endHTML = """
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </body>
+                </html>
+                """;
+        writer.println(headerHTML + identityHTML + agentList + endHTML);
         writer.close();
 
         System.out.println("Fini");
     }
 
-    //Création de la page client
-    public static void createClientPage(String client, Map<String, String> equipmentList) throws IOException {
-        isFile("src/site/" + client + ".html", true);
-        String[] clientInfos = getClientFiles(client);// 0 : txt | 1 : image
+    //Création de la page agent
+    public static void createAgentPage(String agent, Map<String, String> equipmentList) throws IOException {
+        isFile("src/site/" + agent + ".html", true);
+        String[] agentInfos = getAgentFiles(agent);// 0 : txt | 1 : image
 
-        String clientInfoFile = getClientInfo(clientInfos[0]);
+        String agentInfoFile = getAgentInfo(agentInfos[0]);
 
-        String[] temp =  clientInfoFile.split(";"); // C'est moche mais j'en ai marre
+        String[] temp =  agentInfoFile.split(";"); // C'est moche mais j'en ai marre
 
         String[] description = Arrays.copyOfRange(temp, 0, 4);
         String[] personnalEquipment = Arrays.copyOfRange(temp, 5, temp.length);
 
+        String headerHTML = """
+                <head>
+                    <meta charset="UTF-8">
+                    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <link rel="stylesheet" href="Style.css">
+                    <title></title>
+                </head>
+                """;
+
+        String identityHTML = String.format("""
+                <body>
+                    <div>
+                        <div id="header">
+                            <img src="Assets/Images/GoSecuri.png" alt="GO Securi" id="logo">
+                            <a href="">nav item 1</a>
+                            <a href="">nav item 2</a>
+                        </div>
+                        <div id="infoAgent">
+                            <div id="nom">
+                                <p>%s %s</p>
+                                <p>Status : %s</p>
+                            </div>
+                                <img id="carte" src=%s>
+                            <div id="itemList">
+                               <p>Equipment :</p>
+                               <ul>
+                """, description[0], description[1], description[2], agentInfos[1]);
+        String equipmentHTML = "";
+
+        for (String equipment: personnalEquipment) {
+            equipmentHTML += String.format("""
+                    <li>
+                        %s
+                    </li>
+                    """, equipmentList.get(equipment));
+        }
+
+        String endHTML = """
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </body>
+                </html>
+                """;
+
+        PrintWriter writer = new PrintWriter("src/site/" + agent + ".html");
+        writer.println(headerHTML + identityHTML + equipmentHTML + endHTML);
+
+        writer.close();
     }
 
     //Valeur d'entrée : Le chemin voulus pour le fichier index.html
@@ -91,11 +177,11 @@ public class main {
         return true;
     }
 
-    //Valeur d'entrée : Le nom du client
-    public static String[] getClientFiles(String client) throws IOException {
-        File file = new File("src/clients/"+client);
+    //Valeur d'entrée : Le nom du agent
+    public static String[] getAgentFiles(String agent) throws IOException {
+        File file = new File("src/agents/"+agent);
 
-        List<String> clientInfo = new ArrayList<>();
+        List<String> agentInfo = new ArrayList<>();
         //On récupère la list des fichiers
         File[] children = file.listFiles();
         String txtPath = null;
@@ -111,43 +197,129 @@ public class main {
             }
         }
 
-        String[] clientsInfo = new String[2];
-        clientsInfo[0] = txtPath;
-        clientsInfo[1] = IdentityCard;
+        String[] agentsInfo = new String[2];
+        agentsInfo[0] = txtPath;
+        agentsInfo[1] = IdentityCard;
 
-        return clientsInfo;
+        return agentsInfo;
     }
 
     //Valeur d'entrée : Le chemin vers le fichier staff.txt
-    public static List<String> getClients(String clientPath) throws IOException {
-        List<String> clientList = new ArrayList<>();
-        File clientFile = new File(clientPath);
-        Scanner clientFileScan = new Scanner(clientFile);
+    public static List<String> getAgents(String agentPath) throws IOException {
+        List<String> agentList = new ArrayList<>();
+        File agentFile = new File(agentPath);
+        Scanner agentFileScan = new Scanner(agentFile);
 
         //On lit le fichier tant qu'il y a un retour à la ligne
-        while(clientFileScan.hasNextLine()) {
-           clientList.add(clientFileScan.nextLine());
+        while(agentFileScan.hasNextLine()) {
+           agentList.add(agentFileScan.nextLine());
         }
-        clientFileScan.close();
+        agentFileScan.close();
 
-        return clientList;
+        return agentList;
     }
-    public static String getClientInfo(String clientInfo) throws IOException {
-        String clientInfoFile = "";
+    public static String getAgentInfo(String agentInfo) throws IOException {
+        String agentInfoFile = "";
 
         //On lit le fichier tant qu'il y a un retour à la ligne
-        if (isFile(clientInfo, false)) {
-            File file = new File(clientInfo);
+        if (isFile(agentInfo, false)) {
+            File file = new File(agentInfo);
             Scanner infoFile = new Scanner(file);
 
 
             while (infoFile.hasNextLine()) {
-                clientInfoFile += (clientInfoFile.equals("")) ?
+                agentInfoFile += (agentInfoFile.equals("")) ?
                         infoFile.nextLine() :
                         ";" + infoFile.nextLine();
             }
             infoFile.close();
         }
-        return clientInfoFile;
+        return agentInfoFile;
+    }
+
+    public static void createCSS() throws FileNotFoundException {
+        PrintWriter writer = new PrintWriter("src/site/Style.css");
+        writer.println("""
+                body{
+                    margin: unset;
+                    background-color: #379fc133;
+                }
+                                
+                #header{
+                    display: flex;
+                    align-items: center;
+                    justify-content: left;
+                   \s
+                    background-color: #379EC1;
+                }
+                                
+                #header a{
+                    background-color: #659224;
+                    text-decoration: none;
+                    outline: none;
+                    color: black;
+                    font-size: 2vw;
+                                
+                    padding: 5px;
+                }
+                #header a:hover{
+                    background-color: #53791e;
+                    text-decoration: none;
+                    outline: none;
+                    color: black;
+                    font-size: 2vw;
+                                
+                    padding: 5px;
+                }
+                                
+                #logo{
+                    height: 4vw;
+                    width: auto;
+                }
+                                
+                .menuItem{
+                    margin-left: 3vw;
+                                
+                    background-color: #659224;
+                }
+                                
+                #infoAgent{
+                    display: flex;
+                    flex-direction: column;
+                                
+                }
+                                
+                #infoAgent{
+                    display: grid;
+                    grid-template: "nom carte"
+                    "ItemList .";
+                                
+                    grid-template-columns: ;
+                                
+                    align-items: center;
+                    justify-content: space-around;
+                }
+                                
+                .agentList{
+                    display: flex;
+                    flex-direction: column;
+                }
+                                
+                #nom{
+                    grid-area: "nom";
+                }
+                                
+                #carte{
+                    grid-area: "carte";
+                    width: 300px;
+                    height: auto;
+                }
+                                
+                #ItemList{
+                    grid-area: "ItemList";
+                }
+                """);
+        writer.close();
+
     }
 }
